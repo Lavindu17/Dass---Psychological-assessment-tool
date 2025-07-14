@@ -6,10 +6,10 @@
     <title>DASS-21 Assessment Tool</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f9fafb; color: #374151; line-height: 1.6; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0fdf4; color: #374151; line-height: 1.6; }
         .container { max-width: 800px; margin: 0 auto; padding: 20px; }
         .card { background: white; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); margin-bottom: 24px; overflow: hidden; }
-        .card-header { padding: 24px; text-align: center; color: white; background-color: #2563eb; }
+        .card-header { padding: 24px; text-align: center; color: white; background-color: #059669; }
         .card-content { padding: 24px; }
         
         /* Mobile optimizations for main layout */
@@ -60,11 +60,11 @@
         .rating-options { display: grid; grid-template-columns: 1fr; gap: 12px; }
         .rating-option { display: flex; align-items: center; gap: 12px; cursor: pointer; padding: 12px; border-radius: 6px; transition: background-color 0.2s; border: 1px solid #e5e7eb;}
         .rating-option:hover { background-color: #f3f4f6; }
-        .rating-option.selected { background-color: #dbeafe; border-color: #2563eb; }
-        .rating-option.selected input[type="radio"] { accent-color: #2563eb; }
+        .rating-option.selected { background-color: #dcfce7; border-color: #059669; }
+        .rating-option.selected input[type="radio"] { accent-color: #059669; }
         .rating-option input[type="radio"] { width: 18px; height: 18px; cursor: pointer; }
         .rating-text { font-size: 16px; line-height: 1.4; }
-        .action-btn { width: 100%; padding: 16px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; color: white; cursor: pointer; transition: opacity 0.2s; background-color: #2563eb; margin-top: 16px; }
+        .action-btn { width: 100%; padding: 16px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; color: white; cursor: pointer; transition: opacity 0.2s; background-color: #059669; margin-top: 16px; }
         .action-btn:hover { opacity: 0.9; }
         
         /* Mobile optimizations for action buttons */
@@ -115,7 +115,7 @@
             }
         }
         .notice-card { padding: 20px; border-radius: 8px; margin-top: 16px; border: 1px solid #e5e7eb; }
-        .notice-card.secondary { background-color: #dbeafe; }
+        .notice-card.secondary { background-color: #dcfce7; }
         
         /* Mobile optimizations for notice cards */
         @media (max-width: 768px) {
@@ -134,13 +134,13 @@
             }
         }
         .counselor-contact-card { 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             color: white;
             padding: 24px;
             border-radius: 12px;
             margin-top: 16px;
             border: none;
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
         }
         .counselor-header { 
             display: flex; 
@@ -256,14 +256,14 @@
         #language-selection .card, #intro-screen .card { max-width: 800px; margin: 0 auto; text-align: left;}
         progress { width: 100%; height: 8px; -webkit-appearance: none; appearance: none; border-radius: 4px; overflow: hidden; margin-bottom: 16px;}
         progress::-webkit-progress-bar { background-color: #e5e7eb; }
-        progress::-webkit-progress-value { background-color: #2563eb; transition: width 0.3s ease-in-out; }
+        progress::-webkit-progress-value { background-color: #059669; transition: width 0.3s ease-in-out; }
         /* New style for encouragement messages */
         .encouragement-message {
             padding: 12px;
             margin-bottom: 16px;
-            background-color: #e0f2fe;
-            color: #075985;
-            border-left: 5px solid #38bdf8;
+            background-color: #d1fae5;
+            color: #047857;
+            border-left: 5px solid #10b981;
             border-radius: 8px;
             text-align: center;
             font-weight: 500;
@@ -289,7 +289,7 @@
             text-align: center;
         }
         .question-progress-info.incomplete {
-            color: #dc2626;
+            color: #166534;
             font-weight: 500;
         }
         .question-grid {
@@ -314,18 +314,18 @@
             font-size: 14px;
         }
         .question-btn:hover {
-            border-color: #2563eb;
+            border-color: #059669;
             background: #f3f4f6;
         }
         .question-btn.completed {
-            background: #2563eb;
+            background: #059669;
             color: white;
-            border-color: #2563eb;
+            border-color: #059669;
         }
         .question-btn.current {
-            background: #fbbf24;
+            background: #10b981;
             color: white;
-            border-color: #f59e0b;
+            border-color: #059669;
         }
         /* Navigation buttons */
         .navigation-buttons {
@@ -359,12 +359,12 @@
             border-color: #d1d5db;
         }
         .nav-btn.primary {
-            background: #2563eb;
+            background: #059669;
             color: white;
-            border-color: #2563eb;
+            border-color: #059669;
         }
         .nav-btn.primary:hover {
-            background: #1d4ed8;
+            background: #047857;
         }
         .question-counter {
             color: #6b7280;
@@ -373,14 +373,14 @@
         }
         /* Detailed scores section */
         .detailed-scores {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
             border-radius: 8px;
             padding: 20px;
             margin-bottom: 24px;
         }
         .detailed-scores h3 {
-            color: #1e293b;
+            color: #166534;
             margin-bottom: 16px;
             font-size: 18px;
         }
@@ -392,26 +392,26 @@
         }
         .score-detail {
             background: white;
-            border: 1px solid #e2e8f0;
+            border: 1px solid #bbf7d0;
             border-radius: 6px;
             padding: 16px;
             text-align: center;
         }
         .score-detail h4 {
             margin: 0 0 8px 0;
-            color: #475569;
+            color: #166534;
             font-size: 14px;
             font-weight: 500;
         }
         .score-detail .raw-score {
             font-size: 24px;
             font-weight: bold;
-            color: #1e293b;
+            color: #166534;
             margin-bottom: 4px;
         }
         .score-detail .final-score {
             font-size: 12px;
-            color: #64748b;
+            color: #059669;
         }
         
         /* Mobile optimizations for detailed scores */
@@ -439,7 +439,7 @@
         /* Scoring table styles */
         .scoring-table-container {
             background: white;
-            border: 1px solid #e2e8f0;
+            border: 1px solid #bbf7d0;
             border-radius: 8px;
             padding: 20px;
             margin-bottom: 24px;
@@ -447,7 +447,7 @@
         }
         .scoring-table-container h3 {
             margin-bottom: 16px;
-            color: #1e293b;
+            color: #166534;
             font-size: 18px;
         }
         .scoring-table {
@@ -460,15 +460,15 @@
         .scoring-table td {
             padding: 12px;
             text-align: left;
-            border-bottom: 1px solid #e2e8f0;
+            border-bottom: 1px solid #bbf7d0;
         }
         .scoring-table th {
-            background: #f8fafc;
+            background: #f0fdf4;
             font-weight: 600;
-            color: #475569;
+            color: #166534;
         }
         .scoring-table tr:hover {
-            background: #f8fafc;
+            background: #f0fdf4;
         }
         .severity-cell {
             font-weight: 500;
@@ -501,7 +501,7 @@
             .scoring-table th {
                 position: sticky;
                 top: 0;
-                background: #f8fafc;
+                background: #f0fdf4;
                 z-index: 10;
             }
         }
@@ -511,7 +511,7 @@
 
     <div id="language-selection">
         <div class="card">
-            <div class="card-header"><h1>Welcome / සාදරයෙන් පිළිගනිමු</h1></div>
+            <div class="card-header"><h1>Check Your Mental Health  - මානසික සඛ්‍ය පරීක්ෂණය</h1></div>
             <div class="card-content" style="text-align: center;">
                 <h3>Please select your language:</h3>
                 <h3>කරුණාකර ඔබගේ භාෂාව තෝරන්න:</h3><br>
