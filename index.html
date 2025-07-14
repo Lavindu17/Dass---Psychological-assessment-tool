@@ -33,7 +33,7 @@
         .result-label { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
         .result-score { font-size: 48px; font-weight: bold; color: #374151; margin-bottom: 8px; }
         .severity-badge { display: inline-block; padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 500; }
-        .severity-normal { background-color: #dcfce7; color: #166534; } .severity-mild { background-color: #fef3c7; color: #92400e; } .severity-moderate { background-color: #fed7aa; color: #c2410c; } .severity-severe { background-color: #fecaca; color: #dc2626; } .severity-extremely-severe { background-color: #fecaca; color: #991b1b; }
+        .severity-normal { background-color: #dcfce7; color: #166534; } .severity-mild { background-color: #fef3c7; color: #92400e; } .severity-moderate { background-color: #fed7aa; color: #c2410c; } .severity-severe { background-color: #fecaca; color: #dc2626; } .severity-extremely-severe { background-color: #fee2e2; color: #991b1b; }
         .notice-card { padding: 20px; border-radius: 8px; margin-top: 16px; border: 1px solid #e5e7eb; }
         .notice-card.secondary { background-color: #dbeafe; }
         .counselor-contact-card { 
@@ -150,6 +150,16 @@
             margin-bottom: 16px;
             color: #374151;
             font-size: 16px;
+        }
+        .question-progress-info {
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+        .question-progress-info.incomplete {
+            color: #dc2626;
+            font-weight: 500;
         }
         .question-grid {
             display: grid;
@@ -311,7 +321,7 @@
         .severity-cell.mild { color: #92400e; }
         .severity-cell.moderate { color: #c2410c; }
         .severity-cell.severe { color: #dc2626; }
-        .severity-cell.extremely-severe { color: #ff0000; }
+        .severity-cell.extremely-severe { color: #991b1b; }
         @media (max-width: 640px) {
             .scoring-table {
                 font-size: 12px;
@@ -358,6 +368,7 @@
         <div id="assessment-container">
             <div class="question-selector">
                 <h3 id="question-selector-title">Questions</h3>
+                <div class="question-progress-info" id="question-progress-info"></div>
                 <div class="question-grid" id="question-grid"></div>
             </div>
             <progress id="progress-bar" value="0" max="21"></progress>
@@ -464,7 +475,10 @@
                 anxietyHeader: 'Anxiety',
                 stressHeader: 'Stress',
                 rawScore: 'Raw Score',
-                finalScore: 'Final Score (×2)'
+                finalScore: 'Final Score (×2)',
+                questionsCompleted: 'Questions completed',
+                questionsRemaining: 'questions remaining',
+                allQuestionsCompleted: 'All questions completed!'
             },
             si: {
                 introTitle: 'ඔබ ආරම්භ කිරීමට පෙර...',
@@ -522,7 +536,10 @@
                 anxietyHeader: 'කාංසාව',
                 stressHeader: 'ආතතිය',
                 rawScore: 'මූලික ලකුණු',
-                finalScore: 'අවසාන ලකුණු (×2)'
+                finalScore: 'අවසාන ලකුණු (×2)',
+                questionsCompleted: 'ප්‍රශ්න සම්පූර්ණ කර ඇත',
+                questionsRemaining: 'ප්‍රශ්න ඉතිරිව ඇත',
+                allQuestionsCompleted: 'සියලුම ප්‍රශ්න සම්පූර්ණයි!'
             }
         };
 
@@ -575,6 +592,21 @@
 
         function updateQuestionSelector() {
             const buttons = document.querySelectorAll('.question-btn');
+            const completedCount = Object.keys(responses).length;
+            const totalCount = questions.length;
+            const t = translations[currentLanguage];
+            
+            // Update progress info
+            const progressInfo = document.getElementById('question-progress-info');
+            if (completedCount === totalCount) {
+                progressInfo.textContent = t.allQuestionsCompleted;
+                progressInfo.className = 'question-progress-info';
+            } else {
+                progressInfo.textContent = `${completedCount}/${totalCount} ${t.questionsCompleted} (${totalCount - completedCount} ${t.questionsRemaining})`;
+                progressInfo.className = 'question-progress-info incomplete';
+            }
+            
+            // Update button states
             buttons.forEach((btn, index) => {
                 btn.className = 'question-btn';
                 if (index === currentQuestionIndex) {
@@ -609,6 +641,20 @@
                 // All questions answered, show results
                 document.getElementById('assessment-container').classList.add('hidden');
                 calculateResults();
+            } else {
+                // Not all questions answered, go to first unanswered question
+                goToFirstUnansweredQuestion();
+            }
+        }
+
+        function goToFirstUnansweredQuestion() {
+            for (let i = 0; i < questions.length; i++) {
+                if (!responses.hasOwnProperty(i)) {
+                    currentQuestionIndex = i;
+                    renderCurrentQuestion();
+                    updateNavigationButtons();
+                    return;
+                }
             }
         }
 
@@ -696,6 +742,9 @@
                     // All questions answered, show results
                     document.getElementById('assessment-container').classList.add('hidden');
                     calculateResults();
+                } else {
+                    // Not all questions answered, go to first unanswered question
+                    goToFirstUnansweredQuestion();
                 }
             }, 800); // 800ms delay for better UX
         }
