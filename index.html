@@ -22,6 +22,8 @@
         .rating-options { display: grid; grid-template-columns: 1fr; gap: 12px; }
         .rating-option { display: flex; align-items: center; gap: 12px; cursor: pointer; padding: 12px; border-radius: 6px; transition: background-color 0.2s; border: 1px solid #e5e7eb;}
         .rating-option:hover { background-color: #f3f4f6; }
+        .rating-option.selected { background-color: #dbeafe; border-color: #2563eb; }
+        .rating-option.selected input[type="radio"] { accent-color: #2563eb; }
         .rating-option input[type="radio"] { width: 18px; height: 18px; cursor: pointer; }
         .rating-text { font-size: 16px; line-height: 1.4; }
         .action-btn { width: 100%; padding: 16px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; color: white; cursor: pointer; transition: opacity 0.2s; background-color: #2563eb; margin-top: 16px; }
@@ -136,6 +138,98 @@
             font-weight: 500;
             transition: opacity 0.5s;
         }
+        /* Question selector styles */
+        .question-selector {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .question-selector h3 {
+            margin-bottom: 16px;
+            color: #374151;
+            font-size: 16px;
+        }
+        .question-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .question-btn {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #e5e7eb;
+            border-radius: 6px;
+            background: white;
+            color: #6b7280;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        .question-btn:hover {
+            border-color: #2563eb;
+            background: #f3f4f6;
+        }
+        .question-btn.completed {
+            background: #2563eb;
+            color: white;
+            border-color: #2563eb;
+        }
+        .question-btn.current {
+            background: #fbbf24;
+            color: white;
+            border-color: #f59e0b;
+        }
+        /* Navigation buttons */
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            gap: 16px;
+        }
+        .nav-btn {
+            padding: 12px 24px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background: white;
+            color: #374151;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 120px;
+        }
+        .nav-btn:hover {
+            background: #f3f4f6;
+            border-color: #9ca3af;
+        }
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .nav-btn:disabled:hover {
+            background: white;
+            border-color: #d1d5db;
+        }
+        .nav-btn.primary {
+            background: #2563eb;
+            color: white;
+            border-color: #2563eb;
+        }
+        .nav-btn.primary:hover {
+            background: #1d4ed8;
+        }
+        .question-counter {
+            color: #6b7280;
+            font-size: 14px;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
@@ -171,9 +265,18 @@
             </div>
         </div>
         <div id="assessment-container">
+            <div class="question-selector">
+                <h3 id="question-selector-title">Questions</h3>
+                <div class="question-grid" id="question-grid"></div>
+            </div>
             <progress id="progress-bar" value="0" max="21"></progress>
             <div id="encouragement-container" class="encouragement-message hidden"></div>
             <div class="question-card" id="questions-container"></div>
+            <div class="navigation-buttons">
+                <button class="nav-btn" id="prev-btn" onclick="goToPreviousQuestion()">Previous</button>
+                <div class="question-counter" id="question-counter">Question 1 of 21</div>
+                <button class="nav-btn primary" id="next-btn" onclick="goToNextQuestion()">Next</button>
+            </div>
         </div>
         <div class="card hidden" id="results-card">
             <div class="card-header"><h2 id="results-title"></h2></div>
@@ -237,7 +340,13 @@
                 encouragement: {
                     7: "You're doing great, keep going!",
                     15: "Almost there, just a few more questions left!"
-                }
+                },
+                // Navigation translations
+                questionSelectorTitle: 'Questions',
+                previous: 'Previous',
+                next: 'Next',
+                questionOf: 'Question',
+                of: 'of'
             },
             si: {
                 introTitle: 'ඔබ ආරම්භ කිරීමට පෙර...',
@@ -281,7 +390,13 @@
                 encouragement: {
                     7: "ඔබ හොඳින් කරගෙන යනවා, දිගටම කරගෙන යන්න!",
                     15: "වැඩේ ඉවර වෙන්න ළඟයි, තව ප්‍රශ්න කිහිපයයි!"
-                }
+                },
+                // Navigation translations
+                questionSelectorTitle: 'ප්‍රශ්න',
+                previous: 'පෙර',
+                next: 'ඊළඟ',
+                questionOf: 'ප්‍රශ්නය',
+                of: 'න්'
             }
         };
 
@@ -312,45 +427,140 @@
             const t = translations[currentLanguage];
             document.getElementById('counselor').textContent = t.counselor;
             document.getElementById('main-title').textContent = t.mainTitle;
+            document.getElementById('question-selector-title').textContent = t.questionSelectorTitle;
+            createQuestionSelector();
             renderCurrentQuestion();
+            updateNavigationButtons();
+        }
+
+        // --- NEW: Question selector functions ---
+        function createQuestionSelector() {
+            const questionGrid = document.getElementById('question-grid');
+            questionGrid.innerHTML = '';
+            
+            for (let i = 0; i < questions.length; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'question-btn';
+                btn.textContent = i + 1;
+                btn.onclick = () => goToQuestion(i);
+                questionGrid.appendChild(btn);
+            }
+        }
+
+        function updateQuestionSelector() {
+            const buttons = document.querySelectorAll('.question-btn');
+            buttons.forEach((btn, index) => {
+                btn.className = 'question-btn';
+                if (index === currentQuestionIndex) {
+                    btn.className += ' current';
+                } else if (responses.hasOwnProperty(index)) {
+                    btn.className += ' completed';
+                }
+            });
+        }
+
+        function goToQuestion(index) {
+            currentQuestionIndex = index;
+            renderCurrentQuestion();
+            updateNavigationButtons();
+        }
+
+        // --- NEW: Navigation functions ---
+        function goToPreviousQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                renderCurrentQuestion();
+                updateNavigationButtons();
+            }
+        }
+
+        function goToNextQuestion() {
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                renderCurrentQuestion();
+                updateNavigationButtons();
+            } else if (Object.keys(responses).length === questions.length) {
+                // All questions answered, show results
+                document.getElementById('assessment-container').classList.add('hidden');
+                calculateResults();
+            }
+        }
+
+        function updateNavigationButtons() {
+            const t = translations[currentLanguage];
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const counter = document.getElementById('question-counter');
+            
+            // Update button states
+            prevBtn.disabled = currentQuestionIndex === 0;
+            prevBtn.textContent = t.previous;
+            
+            // Update next button text and functionality
+            if (currentQuestionIndex === questions.length - 1 && Object.keys(responses).length === questions.length) {
+                nextBtn.textContent = t.resultsTitle;
+                nextBtn.disabled = false;
+            } else {
+                nextBtn.textContent = t.next;
+                nextBtn.disabled = false;
+            }
+            
+            // Update counter
+            counter.textContent = `${t.questionOf} ${currentQuestionIndex + 1} ${t.of} ${questions.length}`;
         }
 
         // --- QUESTION & ANSWER FUNCTIONS ---
         function renderCurrentQuestion() {
-            // --- MODIFIED: Logic for encouragement messages ---
+            // Update question selector
+            updateQuestionSelector();
+            
+            // Show encouragement messages
             const encouragementContainer = document.getElementById('encouragement-container');
             const t = translations[currentLanguage];
-            const message = t.encouragement[currentQuestionIndex + 1]; // +1 because index is 0-based
+            const message = t.encouragement[currentQuestionIndex + 1];
             if (message) {
                 encouragementContainer.textContent = message;
                 encouragementContainer.classList.remove('hidden');
             } else {
                 encouragementContainer.classList.add('hidden');
             }
-            // --- End of modification ---
-
+            
+            // Update progress bar
             const progressBar = document.getElementById('progress-bar');
-            progressBar.value = currentQuestionIndex;
+            progressBar.value = Object.keys(responses).length;
+            
+            // Render question
             const question = questions[currentQuestionIndex];
             const questionText = `<div class="question-title">${currentQuestionIndex + 1}. ${question[currentLanguage]}</div>`;
-            const optionsHTML = ratingScale[currentLanguage].map(rating =>
-                `<div class="rating-option" onclick="selectRating(${rating.value})">
-                    <input type="radio" name="question-${question.id}" value="${rating.value}">
+            
+            // Get current answer if exists
+            const currentAnswer = responses[currentQuestionIndex];
+            
+            const optionsHTML = ratingScale[currentLanguage].map(rating => {
+                const isSelected = currentAnswer === rating.value;
+                return `<div class="rating-option ${isSelected ? 'selected' : ''}" onclick="selectRating(${rating.value})">
+                    <input type="radio" name="question-${question.id}" value="${rating.value}" ${isSelected ? 'checked' : ''}>
                     <span class="rating-text">${rating.label}</span>
-                </div>`
-            ).join('');
+                </div>`;
+            }).join('');
+            
             document.getElementById('questions-container').innerHTML = questionText + '<div class="rating-options">' + optionsHTML + '</div>';
         }
 
         function selectRating(value) {
             responses[currentQuestionIndex] = value;
-            currentQuestionIndex++;
-            if (currentQuestionIndex < questions.length) {
-                renderCurrentQuestion();
-            } else {
-                document.getElementById('assessment-container').classList.add('hidden');
-                calculateResults();
-            }
+            // Update the visual selection
+            const options = document.querySelectorAll('.rating-option');
+            options.forEach((option, index) => {
+                option.classList.remove('selected');
+                if (index === value) {
+                    option.classList.add('selected');
+                }
+            });
+            
+            // Update question selector and navigation
+            updateQuestionSelector();
+            updateNavigationButtons();
         }
 
         // --- RESULTS CALCULATION AND DISPLAY ---
