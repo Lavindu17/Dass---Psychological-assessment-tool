@@ -11,9 +11,47 @@
         .card { background: white; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); margin-bottom: 24px; overflow: hidden; }
         .card-header { padding: 24px; text-align: center; color: white; background-color: #2563eb; }
         .card-content { padding: 24px; }
+        
+        /* Mobile optimizations for main layout */
+        @media (max-width: 768px) {
+            .container { 
+                padding: 12px; 
+                max-width: 100%;
+            }
+            .card { 
+                border-radius: 8px; 
+                margin-bottom: 16px; 
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+            .card-header { 
+                padding: 20px 16px; 
+            }
+            .card-content { 
+                padding: 20px 16px; 
+            }
+        }
         h1 { font-size: 32px; font-weight: bold; margin-bottom: 8px; }
         h2 { font-size: 24px; font-weight: 600; margin-bottom: 16px; }
         h3 { font-size: 20px; font-weight: 600; margin-bottom: 12px; }
+        
+        /* Mobile typography optimizations */
+        @media (max-width: 768px) {
+            h1 { 
+                font-size: 24px; 
+                margin-bottom: 6px; 
+                line-height: 1.2;
+            }
+            h2 { 
+                font-size: 20px; 
+                margin-bottom: 12px; 
+                line-height: 1.3;
+            }
+            h3 { 
+                font-size: 18px; 
+                margin-bottom: 10px; 
+                line-height: 1.3;
+            }
+        }
         .subtitle { font-size: 14px; margin-top: 8px; opacity: 0.9; }
         .control-group { display: flex; align-items: center; gap: 8px; justify-content: center; }
         select, button { padding: 8px 16px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; background: white; cursor: pointer; }
@@ -28,14 +66,73 @@
         .rating-text { font-size: 16px; line-height: 1.4; }
         .action-btn { width: 100%; padding: 16px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; color: white; cursor: pointer; transition: opacity 0.2s; background-color: #2563eb; margin-top: 16px; }
         .action-btn:hover { opacity: 0.9; }
+        
+        /* Mobile optimizations for action buttons */
+        @media (max-width: 768px) {
+            .action-btn { 
+                padding: 14px; 
+                font-size: 15px; 
+                margin-top: 12px;
+                border-radius: 6px;
+                min-height: 48px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+        }
         .results { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 32px; margin-bottom: 24px; text-align: center;}
         .result-item { text-align: center; }
         .result-label { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
         .result-score { font-size: 48px; font-weight: bold; color: #374151; margin-bottom: 8px; }
         .severity-badge { display: inline-block; padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 500; }
-        .severity-normal { background-color: #dcfce7; color: #166534; } .severity-mild { background-color: #fef3c7; color: #92400e; } .severity-moderate { background-color: #fed7aa; color: #c2410c; } .severity-severe { background-color: #fecaca; color: #dc2626; } .severity-extremely-severe { background-color: #fee2e2; color: #991b1b; }
+        .severity-normal { background-color: #dcfce7; color: #166534; } 
+        .severity-mild { background-color: #fef3c7; color: #92400e; } 
+        .severity-moderate { background-color: #fed7aa; color: #c2410c; } 
+        .severity-severe { background-color: #fecaca; color: #dc2626; } 
+        .severity-extremelySevere { background-color: #fee2e2; color: #991b1b; }
+        
+        /* Mobile optimizations for results */
+        @media (max-width: 768px) {
+            .results { 
+                grid-template-columns: 1fr; 
+                gap: 16px; 
+                margin-bottom: 16px;
+            }
+            .result-item { 
+                background: white; 
+                border: 1px solid #e2e8f0; 
+                border-radius: 8px; 
+                padding: 16px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            }
+            .result-label { font-size: 16px; }
+            .result-score { font-size: 36px; }
+            .severity-badge { 
+                font-size: 12px; 
+                padding: 4px 12px;
+                display: block;
+                margin-top: 8px;
+            }
+        }
         .notice-card { padding: 20px; border-radius: 8px; margin-top: 16px; border: 1px solid #e5e7eb; }
         .notice-card.secondary { background-color: #dbeafe; }
+        
+        /* Mobile optimizations for notice cards */
+        @media (max-width: 768px) {
+            .notice-card { 
+                padding: 16px; 
+                margin-top: 12px;
+                font-size: 14px;
+                line-height: 1.5;
+            }
+            .notice-card h3 {
+                font-size: 16px;
+                margin-bottom: 8px;
+            }
+            .notice-card p {
+                margin-bottom: 8px;
+            }
+        }
         .counselor-contact-card { 
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -106,17 +203,51 @@
             font-weight: 500; 
             word-break: break-all; 
         }
-        @media (max-width: 640px) {
-            .contact-methods { 
-                grid-template-columns: 1fr; 
+        
+        /* Enhanced mobile optimizations for counselor contact */
+        @media (max-width: 768px) {
+            .counselor-contact-card {
+                padding: 20px;
+                margin-top: 12px;
+                border-radius: 8px;
             }
             .counselor-header { 
                 flex-direction: column; 
                 text-align: center; 
+                margin-bottom: 16px;
             }
             .counselor-avatar { 
                 margin-right: 0; 
                 margin-bottom: 12px; 
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+            .counselor-info h3 {
+                font-size: 18px;
+            }
+            .counselor-title {
+                font-size: 13px;
+            }
+            .contact-methods { 
+                grid-template-columns: 1fr; 
+                gap: 12px;
+                margin-top: 16px;
+            }
+            .contact-item {
+                padding: 14px;
+                border-radius: 6px;
+            }
+            .contact-icon {
+                font-size: 20px;
+                margin-bottom: 6px;
+            }
+            .contact-label {
+                font-size: 11px;
+            }
+            .contact-value {
+                font-size: 13px;
+                word-break: break-word;
             }
         }
         .notice-card strong { font-weight: 600; }
@@ -282,6 +413,29 @@
             font-size: 12px;
             color: #64748b;
         }
+        
+        /* Mobile optimizations for detailed scores */
+        @media (max-width: 768px) {
+            .detailed-scores {
+                padding: 16px;
+                margin-bottom: 16px;
+            }
+            .detailed-scores h3 {
+                font-size: 16px;
+                margin-bottom: 12px;
+            }
+            .score-breakdown {
+                grid-template-columns: 1fr;
+                gap: 12px;
+                margin-bottom: 16px;
+            }
+            .score-detail {
+                padding: 12px;
+            }
+            .score-detail .raw-score {
+                font-size: 20px;
+            }
+        }
         /* Scoring table styles */
         .scoring-table-container {
             background: white;
@@ -289,6 +443,7 @@
             border-radius: 8px;
             padding: 20px;
             margin-bottom: 24px;
+            overflow-x: auto;
         }
         .scoring-table-container h3 {
             margin-bottom: 16px;
@@ -299,6 +454,7 @@
             width: 100%;
             border-collapse: collapse;
             font-size: 14px;
+            min-width: 400px;
         }
         .scoring-table th,
         .scoring-table td {
@@ -322,13 +478,31 @@
         .severity-cell.moderate { color: #c2410c; }
         .severity-cell.severe { color: #dc2626; }
         .severity-cell.extremely-severe { color: #991b1b; }
-        @media (max-width: 640px) {
+        
+        /* Mobile optimizations for scoring table */
+        @media (max-width: 768px) {
+            .scoring-table-container {
+                padding: 16px;
+                margin-bottom: 16px;
+            }
+            .scoring-table-container h3 {
+                font-size: 16px;
+                margin-bottom: 12px;
+            }
             .scoring-table {
                 font-size: 12px;
+                min-width: 350px;
             }
             .scoring-table th,
             .scoring-table td {
-                padding: 8px;
+                padding: 8px 6px;
+                font-size: 11px;
+            }
+            .scoring-table th {
+                position: sticky;
+                top: 0;
+                background: #f8fafc;
+                z-index: 10;
             }
         }
     </style>
@@ -456,7 +630,7 @@
                                 <div class="contact-label">Email</div>
                                 <div class="contact-value">sajeevansltas@gmail.com</div>
                             </div>
-                            <div class="contact-item" onclick="window.open('tel:+94716846120')">
+                            <div class="contact-item" onclick="window.open('tel:+94718000623')">
                                 <span class="contact-icon">📞</span>
                                 <div class="contact-label">Phone</div>
                                 <div class="contact-value">071 8000 623</div>
@@ -520,7 +694,7 @@
                                 <div class="contact-label">විද්‍යුත් තැපෑල</div>
                                 <div class="contact-value">sajeevansltas@gmail.com</div>
                             </div>
-                            <div class="contact-item" onclick="window.open('tel:+94716846120')">
+                            <div class="contact-item" onclick="window.open('tel:+94718000623')">
                                 <span class="contact-icon">📞</span>
                                 <div class="contact-label">දුරකථන</div>
                                 <div class="contact-value">071 8000 623</div>
