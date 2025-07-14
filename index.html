@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DASS-21 Assessment Tool</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f9fafb; color: #374151; line-height: 1.6; }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        .card { background: white; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); margin-bottom: 24px; overflow: hidden; }
+        .card-header { padding: 24px; text-align: center; color: white; background-color: #2563eb; }
+        .card-content { padding: 24px; }
+        h1 { font-size: 32px; font-weight: bold; margin-bottom: 8px; }
+        h2 { font-size: 24px; font-weight: 600; margin-bottom: 16px; }
+        h3 { font-size: 20px; font-weight: 600; margin-bottom: 12px; }
+        .subtitle { font-size: 14px; margin-top: 8px; opacity: 0.9; }
+        .control-group { display: flex; align-items: center; gap: 8px; justify-content: center; }
+        select, button { padding: 8px 16px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; background: white; cursor: pointer; }
+        .question-card { border: 1px solid #e5e7eb; border-radius: 8px; padding: 24px; margin-bottom: 16px; background: white; min-height: 250px; }
+        .question-title { font-weight: 600; margin-bottom: 16px; font-size: 18px; }
+        .rating-options { display: grid; grid-template-columns: 1fr; gap: 12px; }
+        .rating-option { display: flex; align-items: center; gap: 12px; cursor: pointer; padding: 12px; border-radius: 6px; transition: background-color 0.2s; border: 1px solid #e5e7eb;}
+        .rating-option:hover { background-color: #f3f4f6; }
+        .rating-option input[type="radio"] { width: 18px; height: 18px; cursor: pointer; }
+        .rating-text { font-size: 16px; line-height: 1.4; }
+        .action-btn { width: 100%; padding: 16px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; color: white; cursor: pointer; transition: opacity 0.2s; background-color: #2563eb; margin-top: 16px; }
+        .action-btn:hover { opacity: 0.9; }
+        .results { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 32px; margin-bottom: 24px; text-align: center;}
+        .result-item { text-align: center; }
+        .result-label { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+        .result-score { font-size: 48px; font-weight: bold; color: #374151; margin-bottom: 8px; }
+        .severity-badge { display: inline-block; padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 500; }
+        .severity-normal { background-color: #dcfce7; color: #166534; } .severity-mild { background-color: #fef3c7; color: #92400e; } .severity-moderate { background-color: #fed7aa; color: #c2410c; } .severity-severe { background-color: #fecaca; color: #dc2626; } .severity-extremely-severe { background-color: #fecaca; color: #991b1b; }
+        .notice-card { padding: 20px; border-radius: 8px; margin-top: 16px; border: 1px solid #e5e7eb; }
+        .notice-card.secondary { background-color: #dbeafe; }
+        .counselor-contact-card { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 24px;
+            border-radius: 12px;
+            margin-top: 16px;
+            border: none;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+        .counselor-header { 
+            display: flex; 
+            align-items: center; 
+            margin-bottom: 16px; 
+        }
+        .counselor-avatar { 
+            width: 60px; 
+            height: 60px; 
+            background: rgba(255, 255, 255, 0.2); 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            margin-right: 16px; 
+            font-size: 24px; 
+            font-weight: bold; 
+        }
+        .counselor-info h3 { 
+            margin: 0; 
+            font-size: 20px; 
+            font-weight: 600; 
+        }
+        .counselor-title { 
+            font-size: 14px; 
+            opacity: 0.9; 
+            margin-top: 4px; 
+        }
+        .contact-methods { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 16px; 
+            margin-top: 16px; 
+        }
+        .contact-item { 
+            background: rgba(255, 255, 255, 0.1); 
+            padding: 16px; 
+            border-radius: 8px; 
+            text-align: center; 
+            transition: all 0.3s ease; 
+            cursor: pointer; 
+            backdrop-filter: blur(10px); 
+        }
+        .contact-item:hover { 
+            background: rgba(255, 255, 255, 0.2); 
+            transform: translateY(-2px); 
+        }
+        .contact-icon { 
+            font-size: 24px; 
+            margin-bottom: 8px; 
+            display: block; 
+        }
+        .contact-label { 
+            font-size: 12px; 
+            opacity: 0.8; 
+            margin-bottom: 4px; 
+        }
+        .contact-value { 
+            font-size: 14px; 
+            font-weight: 500; 
+            word-break: break-all; 
+        }
+        @media (max-width: 640px) {
+            .contact-methods { 
+                grid-template-columns: 1fr; 
+            }
+            .counselor-header { 
+                flex-direction: column; 
+                text-align: center; 
+            }
+            .counselor-avatar { 
+                margin-right: 0; 
+                margin-bottom: 12px; 
+            }
+        }
+        .notice-card strong { font-weight: 600; }
+        .hidden { display: none; }
+        #language-selection, #intro-screen { text-align: center; padding: 40px 20px; }
+        #language-selection .card, #intro-screen .card { max-width: 800px; margin: 0 auto; text-align: left;}
+        progress { width: 100%; height: 8px; -webkit-appearance: none; appearance: none; border-radius: 4px; overflow: hidden; margin-bottom: 16px;}
+        progress::-webkit-progress-bar { background-color: #e5e7eb; }
+        progress::-webkit-progress-value { background-color: #2563eb; transition: width 0.3s ease-in-out; }
+        /* New style for encouragement messages */
+        .encouragement-message {
+            padding: 12px;
+            margin-bottom: 16px;
+            background-color: #e0f2fe;
+            color: #075985;
+            border-left: 5px solid #38bdf8;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 500;
+            transition: opacity 0.5s;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="language-selection">
+        <div class="card">
+            <div class="card-header"><h1>Welcome / සාදරයෙන් පිළිගනිමු</h1></div>
+            <div class="card-content" style="text-align: center;">
+                <h3>Please select your language:</h3>
+                <h3>කරුණාකර ඔබගේ භාෂාව තෝරන්න:</h3><br>
+                <div class="control-group"><select id="initial-language-select"><option value="en">English</option><option value="si">සිංහල</option></select></div><br>
+                <button class="action-btn" onclick="showIntro()">Continue / ඉදිරියට යන්න</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="intro-screen" class="hidden">
+        <div class="card">
+            <div class="card-header"><h2 id="intro-title"></h2></div>
+            <div class="card-content">
+                <div id="dass-description" class="notice-card"></div>
+                <div id="privacy-notice" class="notice-card"></div>
+                <button class="action-btn" id="start-btn" onclick="beginQuestionnaire()"></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container hidden" id="app">
+        <div class="card">
+            <div class="card-header">
+                <h1 id="main-title"></h1>
+                <p class="subtitle" id="counselor"></p>
+            </div>
+        </div>
+        <div id="assessment-container">
+            <progress id="progress-bar" value="0" max="21"></progress>
+            <div id="encouragement-container" class="encouragement-message hidden"></div>
+            <div class="question-card" id="questions-container"></div>
+        </div>
+        <div class="card hidden" id="results-card">
+            <div class="card-header"><h2 id="results-title"></h2></div>
+            <div class="card-content">
+                <div class="results" id="results-container"></div>
+                <div id="counselor-info" class="notice-card secondary hidden"></div>
+                <div id="disclaimer-notice" class="notice-card"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA AND TRANSLATIONS ---
+        const questions = [
+            { id: 1, type: 's', en: 'I found it hard to wind down', si: 'මට විවේක ගැනීමට අපහසු විය' }, { id: 2, type: 'a', en: 'I was aware of dryness of my mouth', si: 'මගේ කට වියළි යන බව මට දැනුණු' }, { id: 3, type: 'd', en: "I couldn't seem to experience any positive feeling at all", si: 'මට කිසිම ධනාත්මක හැඟීමක් අත්විඳීමට නොහැකි විය' }, { id: 4, type: 'a', en: 'I experienced breathing difficulty (e.g. excessively rapid breathing, breathlessness in the absence of physical exertion)', si: 'මට හුස්ම ගැනීම අපහසු විය (අධික වේගයෙන් හුස්ම ගැනීම ශාරීරික වෙහෙසක් නොමැති විට හුස්ම ගැනීමේ අපහසුව)' }, { id: 5, type: 'd', en: 'I found it difficult to work up the initiative to do things', si: 'දේවල් කිරීමට මුල පිරීම අපහසුවීම' }, { id: 6, type: 's', en: 'I tended to over-react to situations', si: 'මම තත්වයන්ට අධික ලෙස ප්‍රතිචාර දක්වීමට පෙළඹුණි' }, { id: 7, type: 'a', en: 'I experienced trembling (e.g. in the hands)', si: 'මට වෙව්ලීම් අත්විඳීමට සිදු විය (උදා: අත්වල)' }, { id: 8, type: 's', en: 'I felt that I was using a lot of nervous energy', si: 'මම බොහෝ ස්නායු ශක්තියක් භාවිතා කරන බව මට හැඟුණි' }, { id: 9, type: 'a', en: 'I was worried about situations in which I might panic and make a fool of myself', si: 'මම භීතියට පත් වී මා මෝඩයෙකු බවට පත් කර ගත හැකි අවස්ථා ගැන කනස්සල්ලෙන් සිටියෙමි' }, { id: 10, type: 'd', en: 'I felt that I had nothing to look forward to', si: 'මට බලාපොරොත්තුවට කිසිමක් නැති බව මට හැඟුණි' }, { id: 11, type: 's', en: 'I found myself getting agitated', si: 'මම කලබල වන බව මට දැනුණි' }, { id: 12, type: 's', en: 'I found it difficult to relax', si: 'මට සැහැල්ලුවෙන් සිටීම අපහසු විය' }, { id: 13, type: 'd', en: 'I felt down-hearted and blue', si: 'මට අධෛර්යයය සහ නීරස දැනුණි' }, { id: 14, type: 's', en: 'I was intolerant of anything that kept me from getting on with what I was doing', si: 'මා කරමින් සිටි දේ කිරීමට බාධා කළ ඕනෑම දෙයක් ඉවසීමට මට නොහැකි විය' }, { id: 15, type: 'a', en: 'I felt I was close to panic', si: 'මට කලබල වීමට ආසන්න බව් දැනුණි' }, { id: 16, type: 'd', en: 'I was unable to become enthusiastic about anything', si: 'මට කිසිවක් ගැන උත්සාහයක් කිරීමට නොහැකි විය' }, { id: 17, type: 'd', en: "I felt I wasn't worth much as a person", si: 'පුද්ගලයෙකු ලෙස මට එතරම් වටිනාකමක් නැති බව මට හැඟුණි' }, { id: 18, 'type': 's', en: 'I felt that I was rather touchy', si: 'මම තරමක් සංවේදී බව මට හැඟුණි' }, { id: 19, type: 'a', en: 'I was aware of the action of my heart in the absence of physical exertion (e.g. sense of heart rate increase, heart missing a beat)', si: 'ශාරීරික වශයෙන් වෙහෙසක් නොමැති විට හදවතේ ක්‍රියාකාරීත්වය මට දැනුනි (හෘද ස්පන්ධන වේගය වැඩිවීම/ හදවතේ ස්පන්ධන මගහැරියාම)' }, { id: 20, type: 'a', en: 'I felt scared without any good reason', si: 'කිසිම හොඳ හේතුවක් නොමැතිව මට භයක් දැනුණි' }, { id: 21, type: 'd', en: 'I felt that life was meaningless', si: 'ජීවිතය අර්ථ විරහිත බව මට හැඟුණි' }
+        ];
+        const ratingScale = {
+            en: [ { value: 0, label: 'Did not apply to me at all' }, { value: 1, label: 'Applied to me to some degree, or some of the time' }, { value: 2, label: 'Applied to me to a considerable degree or a good part of time' }, { value: 3, label: 'Applied to me very much or most of the time' } ],
+            si: [ { value: 0, label: 'මට කිසිසේත්ම අදාළ නොවිණි' }, { value: 1, label: 'යම් ප්‍රමාණයකට, හෝ සමහර වෙලාවට මට අදාළ විය' }, { value: 2, label: 'සැලකිය යුතු ප්‍රමාණයකට හෝ බොහෝ වෙලාවක් මට අදාළ විය' }, { value: 3, label: 'බොහෝසේත්ම හෝ බොහෝ වෙලාවක් මට අදාළ විය' } ]
+        };
+        const translations = {
+            en: {
+                introTitle: 'Before you begin...',
+                startBtn: 'Start Assessment',
+                dassDescTitle: 'About the DASS-21',
+                dassDescText: 'The Depression, Anxiety and Stress Scale - 21 (DASS-21) is a set of three self-report scales designed to measure the emotional states of depression, anxiety, and stress. It is not a diagnostic tool. For more details, you can visit the <a href="https://www.psy.unsw.edu.au/dass/" target="_blank" rel="noopener noreferrer">official DASS website</a>.',
+                privacyTitle: 'Your Privacy is Protected',
+                privacyText: 'This assessment is completely anonymous. Your answers are not stored, and your data is not sent anywhere. All calculations are done in your browser.',
+                mainTitle: 'DASS-21 Assessment',
+                counselor: 'Psychological Counselor: Sajeevan Priyantha',
+                resultsTitle: 'Assessment Results',
+                depression: 'Depression', anxiety: 'Anxiety', stress: 'Stress',
+                counselorMessage: '<strong>Support is Available:</strong> Based on your results, it may be helpful to speak with a professional. Please consider reaching out:',
+                counselorContact: `
+                    <div class="counselor-contact-card">
+                        <div class="counselor-header">
+                            <div class="counselor-avatar">SP</div>
+                            <div class="counselor-info">
+                                <h3>Sajeevan Priyantha</h3>
+                                <div class="counselor-title">Licensed Psychological Counselor</div>
+                            </div>
+                        </div>
+                        <div class="contact-methods">
+                            <div class="contact-item" onclick="window.open('mailto:sajeevansltas@gmail.com')">
+                                <span class="contact-icon">📧</span>
+                                <div class="contact-label">Email</div>
+                                <div class="contact-value">sajeevansltas@gmail.com</div>
+                            </div>
+                            <div class="contact-item" onclick="window.open('tel:+94716846120')">
+                                <span class="contact-icon">📞</span>
+                                <div class="contact-label">Phone</div>
+                                <div class="contact-value">071 684 6120</div>
+                            </div>
+                        </div>
+                    </div>
+                `,
+                disclaimerTitle: 'Important Disclaimer',
+                disclaimerText: 'The DASS-21 is a screening tool and should not be used to replace a formal clinical interview. If you are experiencing significant emotional difficulties, please contact a qualified professional.',
+                severity: { normal: 'Normal', mild: 'Mild', moderate: 'Moderate', severe: 'Severe', extremelySevere: 'Extremely Severe' },
+                // New encouragement messages
+                encouragement: {
+                    7: "You're doing great, keep going!",
+                    15: "Almost there, just a few more questions left!"
+                }
+            },
+            si: {
+                introTitle: 'ඔබ ආරම්භ කිරීමට පෙර...',
+                startBtn: 'තක්සේරුව අරඹන්න',
+                dassDescTitle: 'DASS-21 පිළිබඳව',
+                dassDescText: 'මානසික අවපීඩනය, කාංසාව සහ ආතති පරිමාණය - 21 (DASS-21) යනු මානසික අවපීඩනය, කාංසාව සහ ආතතිය යන චිත්තවේගීය තත්වයන් මැනීම සඳහා නිර්මාණය කර ඇති ස්වයං-වාර්තා පරිමාණ තුනක කට්ටලයකි. එය රෝග විනිශ්චය මෙවලමක් නොවේ. වැඩි විස්තර සඳහා, ඔබට <a href="https://www.psy.unsw.edu.au/dass/" target="_blank" rel="noopener noreferrer">නිල DASS වෙබ් අඩවියට</a> පිවිසිය හැකිය.',
+                privacyTitle: 'ඔබගේ පෞද්ගලිකත්වය සුරක්ෂිතයි',
+                privacyText: 'මෙම තක්සේරුව සම්පූර්ණයෙන්ම නිර්නාමිකයි. ඔබගේ පිළිතුරු ගබඩා කර නොමැති අතර, ඔබගේ දත්ත කොතැනකටවත් යවනු නොලැබේ. සියලුම ගණනය කිරීම් ඔබගේ බ්‍රවුසරයේ සිදු කෙරේ.',
+                mainTitle: 'DASS-21 තක්සේරුව',
+                counselor: 'මනෝ විද්‍යා උපදේශක: සජීවන් ප්‍රියන්ත',
+                resultsTitle: 'තක්සේරු ප්‍රතිඵල',
+                depression: 'මානසික අවපීඩනය', anxiety: 'කාංසාව', stress: 'ආතතිය',
+                counselorMessage: '<strong>සහාය ලබා ගත හැක:</strong> ඔබගේ ප්‍රතිඵල මත පදනම්ව, වෘත්තිකයෙකු සමඟ කතා කිරීම ප්‍රයෝජනවත් විය හැකිය. කරුණාකර සම්බන්ධ කර ගැනීම සලකා බලන්න:',
+                counselorContact: `
+                    <div class="counselor-contact-card">
+                        <div class="counselor-header">
+                            <div class="counselor-avatar">සප්‍</div>
+                            <div class="counselor-info">
+                                <h3>සජීවන් ප්‍රියන්ත</h3>
+                                <div class="counselor-title">බලපත්‍රලත් මනෝ විද්‍යා උපදේශක</div>
+                            </div>
+                        </div>
+                        <div class="contact-methods">
+                            <div class="contact-item" onclick="window.open('mailto:sajeevansltas@gmail.com')">
+                                <span class="contact-icon">📧</span>
+                                <div class="contact-label">විද්‍යුත් තැපෑල</div>
+                                <div class="contact-value">sajeevansltas@gmail.com</div>
+                            </div>
+                            <div class="contact-item" onclick="window.open('tel:+94716846120')">
+                                <span class="contact-icon">📞</span>
+                                <div class="contact-label">දුරකථන</div>
+                                <div class="contact-value">071 684 6120</div>
+                            </div>
+                        </div>
+                    </div>
+                `,
+                disclaimerTitle: 'වැදගත් සටහන',
+                disclaimerText: 'DASS-21 යනු පරීක්ෂණ මෙවලමක් වන අතර එය විධිමත් සායනික සම්මුඛ පරීක්ෂණයක් සඳහා ආදේශකයක් ලෙස භාවිතා නොකළ යුතුය. ඔබ සැලකිය යුතු චිත්තවේගීය දුෂ්කරතා අත්විඳින්නේ නම්, කරුණාකර සුදුසුකම් ලත් වෘත්තිකයෙකු අමතන්න.',
+                severity: { normal: 'සාමාන්‍ය', mild: 'සීමිත', moderate: 'මධ්‍යම', severe: 'දරුණු', extremelySevere: 'අතිශය දරුණු' },
+                // New encouragement messages
+                encouragement: {
+                    7: "ඔබ හොඳින් කරගෙන යනවා, දිගටම කරගෙන යන්න!",
+                    15: "වැඩේ ඉවර වෙන්න ළඟයි, තව ප්‍රශ්න කිහිපයයි!"
+                }
+            }
+        };
+
+        // --- GLOBAL STATE ---
+        let currentLanguage = 'en';
+        let responses = {};
+        let currentQuestionIndex = 0;
+
+        // --- APPLICATION FLOW FUNCTIONS ---
+        function showIntro() {
+            currentLanguage = document.getElementById('initial-language-select').value;
+            const t = translations[currentLanguage];
+            document.getElementById('intro-title').textContent = t.introTitle;
+            document.getElementById('dass-description').innerHTML = `<strong>${t.dassDescTitle}</strong><p>${t.dassDescText}</p>`;
+            document.getElementById('privacy-notice').innerHTML = `<strong>${t.privacyTitle}</strong><p>${t.privacyText}</p>`;
+            document.getElementById('start-btn').textContent = t.startBtn;
+            document.getElementById('language-selection').classList.add('hidden');
+            document.getElementById('intro-screen').classList.remove('hidden');
+        }
+
+        function beginQuestionnaire() {
+            document.getElementById('intro-screen').classList.add('hidden');
+            document.getElementById('app').classList.remove('hidden');
+            initializeApp();
+        }
+
+        function initializeApp() {
+            const t = translations[currentLanguage];
+            document.getElementById('counselor').textContent = t.counselor;
+            document.getElementById('main-title').textContent = t.mainTitle;
+            renderCurrentQuestion();
+        }
+
+        // --- QUESTION & ANSWER FUNCTIONS ---
+        function renderCurrentQuestion() {
+            // --- MODIFIED: Logic for encouragement messages ---
+            const encouragementContainer = document.getElementById('encouragement-container');
+            const t = translations[currentLanguage];
+            const message = t.encouragement[currentQuestionIndex + 1]; // +1 because index is 0-based
+            if (message) {
+                encouragementContainer.textContent = message;
+                encouragementContainer.classList.remove('hidden');
+            } else {
+                encouragementContainer.classList.add('hidden');
+            }
+            // --- End of modification ---
+
+            const progressBar = document.getElementById('progress-bar');
+            progressBar.value = currentQuestionIndex;
+            const question = questions[currentQuestionIndex];
+            const questionText = `<div class="question-title">${currentQuestionIndex + 1}. ${question[currentLanguage]}</div>`;
+            const optionsHTML = ratingScale[currentLanguage].map(rating =>
+                `<div class="rating-option" onclick="selectRating(${rating.value})">
+                    <input type="radio" name="question-${question.id}" value="${rating.value}">
+                    <span class="rating-text">${rating.label}</span>
+                </div>`
+            ).join('');
+            document.getElementById('questions-container').innerHTML = questionText + '<div class="rating-options">' + optionsHTML + '</div>';
+        }
+
+        function selectRating(value) {
+            responses[currentQuestionIndex] = value;
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                renderCurrentQuestion();
+            } else {
+                document.getElementById('assessment-container').classList.add('hidden');
+                calculateResults();
+            }
+        }
+
+        // --- RESULTS CALCULATION AND DISPLAY ---
+        function calculateScores() {
+            const finalScores = { depression: 0, anxiety: 0, stress: 0 };
+            questions.forEach((q, index) => {
+                const score = responses[index] || 0;
+                if (q.type === 'd') finalScores.depression += score;
+                else if (q.type === 'a') finalScores.anxiety += score;
+                else if (q.type === 's') finalScores.stress += score;
+            });
+            finalScores.depression *= 2;
+            finalScores.anxiety *= 2;
+            finalScores.stress *= 2;
+            return finalScores;
+        }
+
+        function getSeverityLevel(score, type) {
+            const ranges = {
+                depression: { normal: [0, 9], mild: [10, 13], moderate: [14, 20], severe: [21, 27], extremelySevere: [28, Infinity] },
+                anxiety: { normal: [0, 7], mild: [8, 9], moderate: [10, 14], severe: [15, 19], extremelySevere: [20, Infinity] },
+                stress: { normal: [0, 14], mild: [15, 18], moderate: [19, 25], severe: [26, 33], extremelySevere: [34, Infinity] }
+            };
+            for (const [level, [min, max]] of Object.entries(ranges[type])) {
+                if (score >= min && score <= max) return level;
+            }
+        }
+
+        function calculateResults() {
+            const scores = calculateScores();
+            const t = translations[currentLanguage];
+            document.getElementById('results-title').textContent = t.resultsTitle;
+            const resultsContainer = document.getElementById('results-container');
+            resultsContainer.innerHTML = '';
+            
+            let showCounselorInfo = false;
+            for (const type of ['depression', 'anxiety', 'stress']) {
+                const score = scores[type];
+                const severity = getSeverityLevel(score, type);
+                if (severity !== 'normal') showCounselorInfo = true;
+                resultsContainer.innerHTML += `
+                    <div class="result-item">
+                        <div class="result-label">${t[type]}</div>
+                        <div class="result-score">${score}</div>
+                        <div class="severity-badge severity-${severity}">${t.severity[severity]}</div>
+                    </div>`;
+            }
+
+            if (showCounselorInfo) {
+                const counselorDiv = document.getElementById('counselor-info');
+                counselorDiv.innerHTML = `<p>${t.counselorMessage}</p>${t.counselorContact}`;
+                counselorDiv.classList.remove('hidden');
+            }
+
+            document.getElementById('disclaimer-notice').innerHTML = `<strong>${t.disclaimerTitle}</strong><p>${t.disclaimerText}</p>`;
+            document.getElementById('results-card').classList.remove('hidden');
+            document.getElementById('results-card').scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
