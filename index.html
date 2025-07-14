@@ -230,6 +230,97 @@
             font-size: 14px;
             font-weight: 500;
         }
+        /* Detailed scores section */
+        .detailed-scores {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+        .detailed-scores h3 {
+            color: #1e293b;
+            margin-bottom: 16px;
+            font-size: 18px;
+        }
+        .score-breakdown {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .score-detail {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 16px;
+            text-align: center;
+        }
+        .score-detail h4 {
+            margin: 0 0 8px 0;
+            color: #475569;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .score-detail .raw-score {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+        .score-detail .final-score {
+            font-size: 12px;
+            color: #64748b;
+        }
+        /* Scoring table styles */
+        .scoring-table-container {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+        .scoring-table-container h3 {
+            margin-bottom: 16px;
+            color: #1e293b;
+            font-size: 18px;
+        }
+        .scoring-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        .scoring-table th,
+        .scoring-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .scoring-table th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #475569;
+        }
+        .scoring-table tr:hover {
+            background: #f8fafc;
+        }
+        .severity-cell {
+            font-weight: 500;
+        }
+        .severity-cell.normal { color: #166534; }
+        .severity-cell.mild { color: #92400e; }
+        .severity-cell.moderate { color: #c2410c; }
+        .severity-cell.severe { color: #dc2626; }
+        .severity-cell.extremely-severe { color: #ff0000; }
+        @media (max-width: 640px) {
+            .scoring-table {
+                font-size: 12px;
+            }
+            .scoring-table th,
+            .scoring-table td {
+                padding: 8px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -281,6 +372,25 @@
         <div class="card hidden" id="results-card">
             <div class="card-header"><h2 id="results-title"></h2></div>
             <div class="card-content">
+                <div class="detailed-scores">
+                    <h3 id="detailed-scores-title">Detailed Score Breakdown</h3>
+                    <div class="score-breakdown" id="score-breakdown"></div>
+                </div>
+                <div class="scoring-table-container">
+                    <h3 id="scoring-table-title">DASS-21 Scoring Guidelines</h3>
+                    <table class="scoring-table" id="scoring-table">
+                        <thead>
+                            <tr>
+                                <th id="severity-header">Severity</th>
+                                <th id="depression-header">Depression</th>
+                                <th id="anxiety-header">Anxiety</th>
+                                <th id="stress-header">Stress</th>
+                            </tr>
+                        </thead>
+                        <tbody id="scoring-table-body">
+                        </tbody>
+                    </table>
+                </div>
                 <div class="results" id="results-container"></div>
                 <div id="counselor-info" class="notice-card secondary hidden"></div>
                 <div id="disclaimer-notice" class="notice-card"></div>
@@ -328,7 +438,7 @@
                             <div class="contact-item" onclick="window.open('tel:+94716846120')">
                                 <span class="contact-icon">📞</span>
                                 <div class="contact-label">Phone</div>
-                                <div class="contact-value">071 684 6120</div>
+                                <div class="contact-value">071 8000 623</div>
                             </div>
                         </div>
                     </div>
@@ -346,7 +456,15 @@
                 previous: 'Previous',
                 next: 'Next',
                 questionOf: 'Question',
-                of: 'of'
+                of: 'of',
+                detailedScoresTitle: 'Your Score Breakdown',
+                scoringTableTitle: 'DASS-21 Scoring Guidelines',
+                severityHeader: 'Severity',
+                depressionHeader: 'Depression',
+                anxietyHeader: 'Anxiety',
+                stressHeader: 'Stress',
+                rawScore: 'Raw Score',
+                finalScore: 'Final Score (×2)'
             },
             si: {
                 introTitle: 'ඔබ ආරම්භ කිරීමට පෙර...',
@@ -378,7 +496,7 @@
                             <div class="contact-item" onclick="window.open('tel:+94716846120')">
                                 <span class="contact-icon">📞</span>
                                 <div class="contact-label">දුරකථන</div>
-                                <div class="contact-value">071 684 6120</div>
+                                <div class="contact-value">071 8000 623</div>
                             </div>
                         </div>
                     </div>
@@ -388,15 +506,23 @@
                 severity: { normal: 'සාමාන්‍ය', mild: 'සීමිත', moderate: 'මධ්‍යම', severe: 'දරුණු', extremelySevere: 'අතිශය දරුණු' },
                 // New encouragement messages
                 encouragement: {
-                    7: "ඔබ හොඳින් කරගෙන යනවා, දිගටම කරගෙන යන්න!",
-                    15: "වැඩේ ඉවර වෙන්න ළඟයි, තව ප්‍රශ්න කිහිපයයි!"
+                    7: "ඔබ හොඳින් කරගෙන යනවා!",
+                    15: "තව ප්‍රශ්න කිහිපයයි!"
                 },
                 // Navigation translations
                 questionSelectorTitle: 'ප්‍රශ්න',
                 previous: 'පෙර',
                 next: 'ඊළඟ',
                 questionOf: 'ප්‍රශ්නය',
-                of: 'න්'
+                of: 'න්',
+                detailedScoresTitle: 'විස්තරාත්මක ලකුණු වර්ගීකරණය',
+                scoringTableTitle: 'DASS-21 ලකුණු මාර්ගෝපදේශ',
+                severityHeader: 'තීව්‍රතාව',
+                depressionHeader: 'මානසික අවපීඩනය',
+                anxietyHeader: 'කාංසාව',
+                stressHeader: 'ආතතිය',
+                rawScore: 'මූලික ලකුණු',
+                finalScore: 'අවසාන ලකුණු (×2)'
             }
         };
 
@@ -561,6 +687,17 @@
             // Update question selector and navigation
             updateQuestionSelector();
             updateNavigationButtons();
+            
+            // Auto-advance to next question after a short delay
+            setTimeout(() => {
+                if (currentQuestionIndex < questions.length - 1) {
+                    goToNextQuestion();
+                } else if (Object.keys(responses).length === questions.length) {
+                    // All questions answered, show results
+                    document.getElementById('assessment-container').classList.add('hidden');
+                    calculateResults();
+                }
+            }, 800); // 800ms delay for better UX
         }
 
         // --- RESULTS CALCULATION AND DISPLAY ---
@@ -591,8 +728,25 @@
 
         function calculateResults() {
             const scores = calculateScores();
+            const rawScores = calculateRawScores();
             const t = translations[currentLanguage];
+            
+            // Update results page translations
             document.getElementById('results-title').textContent = t.resultsTitle;
+            document.getElementById('detailed-scores-title').textContent = t.detailedScoresTitle;
+            document.getElementById('scoring-table-title').textContent = t.scoringTableTitle;
+            document.getElementById('severity-header').textContent = t.severityHeader;
+            document.getElementById('depression-header').textContent = t.depression;
+            document.getElementById('anxiety-header').textContent = t.anxiety;
+            document.getElementById('stress-header').textContent = t.stress;
+            
+            // Render detailed scores
+            renderDetailedScores(rawScores, scores, t);
+            
+            // Render scoring table
+            renderScoringTable(t);
+            
+            // Render main results
             const resultsContainer = document.getElementById('results-container');
             resultsContainer.innerHTML = '';
             
@@ -618,6 +772,53 @@
             document.getElementById('disclaimer-notice').innerHTML = `<strong>${t.disclaimerTitle}</strong><p>${t.disclaimerText}</p>`;
             document.getElementById('results-card').classList.remove('hidden');
             document.getElementById('results-card').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function calculateRawScores() {
+            const rawScores = { depression: 0, anxiety: 0, stress: 0 };
+            questions.forEach((q, index) => {
+                const score = responses[index] || 0;
+                if (q.type === 'd') rawScores.depression += score;
+                else if (q.type === 'a') rawScores.anxiety += score;
+                else if (q.type === 's') rawScores.stress += score;
+            });
+            return rawScores;
+        }
+
+        function renderDetailedScores(rawScores, finalScores, t) {
+            const scoreBreakdown = document.getElementById('score-breakdown');
+            scoreBreakdown.innerHTML = '';
+            
+            for (const type of ['depression', 'anxiety', 'stress']) {
+                scoreBreakdown.innerHTML += `
+                    <div class="score-detail">
+                        <h4>${t[type]}</h4>
+                        <div class="raw-score">${rawScores[type]}</div>
+                        <div class="final-score">${t.finalScore}: ${finalScores[type]}</div>
+                    </div>`;
+            }
+        }
+
+        function renderScoringTable(t) {
+            const tableBody = document.getElementById('scoring-table-body');
+            const scoringRanges = [
+                { severity: 'normal', depression: '0-9', anxiety: '0-7', stress: '0-14' },
+                { severity: 'mild', depression: '10-13', anxiety: '8-9', stress: '15-18' },
+                { severity: 'moderate', depression: '14-20', anxiety: '10-14', stress: '19-25' },
+                { severity: 'severe', depression: '21-27', anxiety: '15-19', stress: '26-33' },
+                { severity: 'extremelySevere', depression: '28+', anxiety: '20+', stress: '34+' }
+            ];
+            
+            tableBody.innerHTML = '';
+            scoringRanges.forEach(range => {
+                tableBody.innerHTML += `
+                    <tr>
+                        <td class="severity-cell ${range.severity}">${t.severity[range.severity]}</td>
+                        <td>${range.depression}</td>
+                        <td>${range.anxiety}</td>
+                        <td>${range.stress}</td>
+                    </tr>`;
+            });
         }
     </script>
 </body>
