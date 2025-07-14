@@ -380,6 +380,16 @@
                 <button class="nav-btn primary" id="next-btn" onclick="goToNextQuestion()">Next</button>
             </div>
         </div>
+        
+        <div class="card hidden" id="completion-card">
+            <div class="card-header">
+                <h2 id="completion-title">Assessment Complete!</h2>
+            </div>
+            <div class="card-content" style="text-align: center;">
+                <p id="completion-message">You have successfully completed all 21 questions of the DASS-21 assessment.</p>
+                <button class="action-btn" id="view-results-btn" onclick="showResults()">View Assessment Results</button>
+            </div>
+        </div>
         <div class="card hidden" id="results-card">
             <div class="card-header"><h2 id="results-title"></h2></div>
             <div class="card-content">
@@ -478,7 +488,10 @@
                 finalScore: 'Final Score (×2)',
                 questionsCompleted: 'Questions completed',
                 questionsRemaining: 'questions remaining',
-                allQuestionsCompleted: 'All questions completed!'
+                allQuestionsCompleted: 'All questions completed!',
+                completionTitle: 'Assessment Complete!',
+                completionMessage: 'You have successfully completed all 21 questions of the DASS-21 assessment.',
+                viewResultsBtn: 'View Assessment Results'
             },
             si: {
                 introTitle: 'ඔබ ආරම්භ කිරීමට පෙර...',
@@ -539,7 +552,10 @@
                 finalScore: 'අවසාන ලකුණු (×2)',
                 questionsCompleted: 'ප්‍රශ්න සම්පූර්ණ කර ඇත',
                 questionsRemaining: 'ප්‍රශ්න ඉතිරිව ඇත',
-                allQuestionsCompleted: 'සියලුම ප්‍රශ්න සම්පූර්ණයි!'
+                allQuestionsCompleted: 'සියලුම ප්‍රශ්න සම්පූර්ණයි!',
+                completionTitle: 'තක්සේරුව සම්පූර්ණයි!',
+                completionMessage: 'ඔබ DASS-21 තක්සේරුවේ සියලුම ප්‍රශ්න 21ම සාර්ථකව සම්පූර්ණ කර ඇත.',
+                viewResultsBtn: 'තක්සේරු ප්‍රතිඵල බලන්න'
             }
         };
 
@@ -547,6 +563,8 @@
         let currentLanguage = 'en';
         let responses = {};
         let currentQuestionIndex = 0;
+        let unansweredQuestions = []; // Track unanswered questions during completion phase
+        let isCompletionMode = false; // Flag to indicate we're in completion mode
 
         // --- APPLICATION FLOW FUNCTIONS ---
         function showIntro() {
@@ -601,6 +619,9 @@
             if (completedCount === totalCount) {
                 progressInfo.textContent = t.allQuestionsCompleted;
                 progressInfo.className = 'question-progress-info';
+            } else if (isCompletionMode) {
+                progressInfo.textContent = `Completing remaining questions: ${unansweredQuestions.length} left`;
+                progressInfo.className = 'question-progress-info incomplete';
             } else {
                 progressInfo.textContent = `${completedCount}/${totalCount} ${t.questionsCompleted} (${totalCount - completedCount} ${t.questionsRemaining})`;
                 progressInfo.className = 'question-progress-info incomplete';
@@ -614,40 +635,116 @@
                 } else if (responses.hasOwnProperty(index)) {
                     btn.className += ' completed';
                 }
+                
+                // In completion mode, disable buttons for already answered questions
+                if (isCompletionMode && responses.hasOwnProperty(index)) {
+                    btn.style.opacity = '0.5';
+                    btn.style.cursor = 'not-allowed';
+                    btn.onclick = null; // Disable click
+                } else {
+                    btn.style.opacity = '1';
+                    btn.style.cursor = 'pointer';
+                    btn.onclick = () => goToQuestion(index);
+                }
             });
         }
 
         function goToQuestion(index) {
-            currentQuestionIndex = index;
-            renderCurrentQuestion();
-            updateNavigationButtons();
+            // Allow manual navigation only if not in completion mode or if going to an unanswered question
+            if (!isCompletionMode || !responses.hasOwnProperty(index)) {
+                currentQuestionIndex = index;
+                renderCurrentQuestion();
+                updateNavigationButtons();
+            }
         }
 
         // --- NEW: Navigation functions ---
         function goToPreviousQuestion() {
-            if (currentQuestionIndex > 0) {
+            if (isCompletionMode) {
+                // In completion mode, go to previous unanswered question
+                goToPreviousUnansweredQuestion();
+            } else if (currentQuestionIndex > 0) {
                 currentQuestionIndex--;
                 renderCurrentQuestion();
                 updateNavigationButtons();
             }
         }
 
+        function goToPreviousUnansweredQuestion() {
+            const currentUnansweredIndex = unansweredQuestions.indexOf(currentQuestionIndex);
+            if (currentUnansweredIndex > 0) {
+                // Go to previous unanswered question
+                currentQuestionIndex = unansweredQuestions[currentUnansweredIndex - 1];
+                renderCurrentQuestion();
+                updateNavigationButtons();
+            }
+        }
+
         function goToNextQuestion() {
-            if (currentQuestionIndex < questions.length - 1) {
+            if (isCompletionMode) {
+                // In completion mode, go to next unanswered question
+                goToNextUnansweredQuestion();
+            } else if (currentQuestionIndex < questions.length - 1) {
                 currentQuestionIndex++;
                 renderCurrentQuestion();
                 updateNavigationButtons();
-            } else if (Object.keys(responses).length === questions.length) {
-                // All questions answered, show results
-                document.getElementById('assessment-container').classList.add('hidden');
-                calculateResults();
             } else {
-                // Not all questions answered, go to first unanswered question
-                goToFirstUnansweredQuestion();
+                // We've reached the end (Q21), check if all questions are answered
+                if (Object.keys(responses).length === questions.length) {
+                    // All questions answered, show completion card
+                    showCompletionCard();
+                } else {
+                    // Not all questions answered, enter completion mode
+                    enterCompletionMode();
+                }
+            }
+        }
+
+        function enterCompletionMode() {
+            isCompletionMode = true;
+            // Get list of unanswered questions in order
+            unansweredQuestions = [];
+            for (let i = 0; i < questions.length; i++) {
+                if (!responses.hasOwnProperty(i)) {
+                    unansweredQuestions.push(i);
+                }
+            }
+            
+            console.log('Entering completion mode. Unanswered questions:', unansweredQuestions);
+            
+            // Go to first unanswered question
+            if (unansweredQuestions.length > 0) {
+                currentQuestionIndex = unansweredQuestions[0];
+                renderCurrentQuestion();
+                updateNavigationButtons();
+            } else {
+                // No unanswered questions, show completion card
+                showCompletionCard();
+            }
+        }
+
+        function goToNextUnansweredQuestion() {
+            const currentUnansweredIndex = unansweredQuestions.indexOf(currentQuestionIndex);
+            
+            if (currentUnansweredIndex !== -1 && currentUnansweredIndex < unansweredQuestions.length - 1) {
+                // Go to next unanswered question
+                currentQuestionIndex = unansweredQuestions[currentUnansweredIndex + 1];
+                renderCurrentQuestion();
+                updateNavigationButtons();
+            } else {
+                // We've gone through all unanswered questions, check if assessment is complete
+                if (Object.keys(responses).length === questions.length) {
+                    // All questions now answered
+                    showCompletionCard();
+                } else {
+                    // Still have unanswered questions, refresh the list and continue
+                    enterCompletionMode();
+                }
             }
         }
 
         function goToFirstUnansweredQuestion() {
+            // This function is now only used for manual navigation to unanswered questions
             for (let i = 0; i < questions.length; i++) {
                 if (!responses.hasOwnProperty(i)) {
                     currentQuestionIndex = i;
@@ -664,21 +761,28 @@
             const nextBtn = document.getElementById('next-btn');
             const counter = document.getElementById('question-counter');
             
-            // Update button states
-            prevBtn.disabled = currentQuestionIndex === 0;
-            prevBtn.textContent = t.previous;
-            
-            // Update next button text and functionality
-            if (currentQuestionIndex === questions.length - 1 && Object.keys(responses).length === questions.length) {
-                nextBtn.textContent = t.resultsTitle;
-                nextBtn.disabled = false;
-            } else {
+            if (isCompletionMode) {
+                // In completion mode, show different navigation
+                const currentUnansweredIndex = unansweredQuestions.indexOf(currentQuestionIndex);
+                const totalUnanswered = unansweredQuestions.length;
+                
+                prevBtn.disabled = currentUnansweredIndex === 0;
+                prevBtn.textContent = t.previous;
                 nextBtn.textContent = t.next;
                 nextBtn.disabled = false;
+                
+                // Show completion progress
+                counter.textContent = `Completing ${currentUnansweredIndex + 1} of ${totalUnanswered} remaining questions`;
+            } else {
+                // Normal mode navigation
+                prevBtn.disabled = currentQuestionIndex === 0;
+                prevBtn.textContent = t.previous;
+                nextBtn.textContent = t.next;
+                nextBtn.disabled = false;
+                
+                // Update counter
+                counter.textContent = `${t.questionOf} ${currentQuestionIndex + 1} ${t.of} ${questions.length}`;
             }
-            
-            // Update counter
-            counter.textContent = `${t.questionOf} ${currentQuestionIndex + 1} ${t.of} ${questions.length}`;
         }
 
         // --- QUESTION & ANSWER FUNCTIONS ---
@@ -721,6 +825,16 @@
 
         function selectRating(value) {
             responses[currentQuestionIndex] = value;
+            
+            // If in completion mode, remove this question from unanswered list
+            if (isCompletionMode) {
+                const index = unansweredQuestions.indexOf(currentQuestionIndex);
+                if (index > -1) {
+                    unansweredQuestions.splice(index, 1);
+                }
+                console.log('Question answered. Remaining unanswered questions:', unansweredQuestions);
+            }
+            
             // Update the visual selection
             const options = document.querySelectorAll('.rating-option');
             options.forEach((option, index) => {
@@ -736,17 +850,54 @@
             
             // Auto-advance to next question after a short delay
             setTimeout(() => {
-                if (currentQuestionIndex < questions.length - 1) {
+                if (isCompletionMode) {
+                    if (Object.keys(responses).length === questions.length) {
+                        // All questions now answered, show completion card
+                        showCompletionCard();
+                    } else {
+                        // Go to next unanswered question
+                        goToNextUnansweredQuestion();
+                    }
+                } else if (currentQuestionIndex < questions.length - 1) {
                     goToNextQuestion();
-                } else if (Object.keys(responses).length === questions.length) {
-                    // All questions answered, show results
-                    document.getElementById('assessment-container').classList.add('hidden');
-                    calculateResults();
                 } else {
-                    // Not all questions answered, go to first unanswered question
-                    goToFirstUnansweredQuestion();
+                    // We've reached the end (Q21), check if all questions are answered
+                    if (Object.keys(responses).length === questions.length) {
+                        // All questions answered, show completion card
+                        showCompletionCard();
+                    } else {
+                        // Not all questions answered, enter completion mode
+                        enterCompletionMode();
+                    }
                 }
             }, 800); // 800ms delay for better UX
+        }
+
+        // --- NEW: Completion card functions ---
+        function showCompletionCard() {
+            const t = translations[currentLanguage];
+            
+            // Reset completion mode
+            isCompletionMode = false;
+            unansweredQuestions = [];
+            
+            // Update completion card text
+            document.getElementById('completion-title').textContent = t.completionTitle;
+            document.getElementById('completion-message').textContent = t.completionMessage;
+            document.getElementById('view-results-btn').textContent = t.viewResultsBtn;
+            
+            // Hide assessment container and show completion card
+            document.getElementById('assessment-container').classList.add('hidden');
+            document.getElementById('completion-card').classList.remove('hidden');
+            
+            // Scroll to completion card
+            document.getElementById('completion-card').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function showResults() {
+            // Hide completion card and show results
+            document.getElementById('completion-card').classList.add('hidden');
+            calculateResults();
         }
 
         // --- RESULTS CALCULATION AND DISPLAY ---
